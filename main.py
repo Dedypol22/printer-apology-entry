@@ -32,6 +32,14 @@ def output_dir() -> str:
 
 
 def main() -> int:
+    # Guard the payload before it reaches disk: a blank or
+    # control-character apology must fail loudly here instead of
+    # shipping a broken entry.txt.
+    if not APOLOGY.strip():
+        raise ValueError("apology must not be blank or whitespace-only")
+    if any(ord(ch) < 0x20 or ord(ch) == 0x7F for ch in APOLOGY):
+        raise ValueError("apology must not contain control characters")
+
     # Build the payload once, so the file and stdout can never disagree
     # about the exact bytes of the apology.
     text = APOLOGY + "\n"
